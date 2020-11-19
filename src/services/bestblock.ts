@@ -1,42 +1,38 @@
-import axios from "axios";
+import { Pool } from "pg";
+import { Request, Response } from "express";
 
-import {  contentTypeHeaders, graphqlEndpoint, UtilEither} from "../utils";
+import { UtilEither } from "../utils";
 
 export interface CardanoFrag {
   currentEpoch: EpochFrag;
 }
 
 export interface EpochFrag {
-    blocks: BlockFrag[];
-    number: number;
+  blocks: BlockFrag[];
+  number: number;
 }
 
 export interface BlockFrag {
-    hash: string;
-    number: number;
-    slotNo: number;
-    slotInEpoch: number;
+  hash: string;
+  number: number;
+  slotNo: number;
+  slotInEpoch: number;
 }
 
-export const askBestBlock = async () : Promise<UtilEither<CardanoFrag>> => {
+export const askBestBlock = (pool: Pool) => async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const query = `
-                {
-                  cardano {
-                    currentEpoch {
-                      number
-                      blocks(limit:1, order_by: { forgedAt:desc}) {
-                        hash
-                        number
-                        slotNo
-                        slotInEpoch
-                      }
-                    }
-                  },
-                }
-            `;
-  const ret = await axios.post(graphqlEndpoint, JSON.stringify({"query":query}), contentTypeHeaders);
-  if("data" in ret && "data" in ret.data && "cardano" in ret.data.data)
-    return { kind: "ok", value: ret.data.data.cardano };
-  else return { kind: "error", errMsg:"BestBlock, could not understand graphql response" };
+         SELECT epoch_no AS "epoch",
+           epoch_slot_no AS "slot",
+           encode(hash, 'hex') as hash,
+           block_no AS height,
+         FROM BLOCK
+         ORDER BY id DESC
+         LIMIT 1;
+       `;
+  const bestBlock = await pool.query(query);
+  res.send(bestBlock.rows[0]);
+  return;
 };
-

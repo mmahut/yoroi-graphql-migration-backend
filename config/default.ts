@@ -1,17 +1,17 @@
-export default { 
+export default {
   db: {
-    user: 'hasura',
-    host: '/tmp/',
-    database: 'cexplorer',
-    password: ''
+    user: "csyncdb",
+    host: "dbsync1.mainnet.core.blockfrost.io",
+    database: "csyncdb",
+    password: "",
   },
   server: {
     addressRequestLimit: 50,
     apiResponseLimit: 50,
-    graphqlEndpoint: 'http://localhost:3100/',
-    txSubmissionEndpoint: 'https://backend.yoroiwallet.com/api/submit/tx',
-    smashEndpoint: 'https://smash.yoroiwallet.com/api/v1/metadata/',
+    graphqlEndpoint: "http://localhost:3100/",
+    txSubmissionEndpoint: "https://backend.yoroiwallet.com/api/submit/tx",
+    smashEndpoint: "https://smash.yoroiwallet.com/api/v1/metadata/",
     port: 8082,
-    txsHashesRequestLimit: 150
-  }
-}
+    txsHashesRequestLimit: 150,
+  },
+};
