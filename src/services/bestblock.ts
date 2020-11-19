@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 import { UtilEither } from "../utils";
 
-export interface CardanoFrag {
+export interface CardanoFragOld {
   currentEpoch: EpochFrag;
 }
 
@@ -19,6 +19,13 @@ export interface BlockFrag {
   slotInEpoch: number;
 }
 
+export interface CardanoFrag {
+  epoch: number;
+  slot: number;
+  hash: string;
+  height: number;
+}
+
 export const askBestBlock = (pool: Pool) => async (
   req: Request,
   res: Response
@@ -27,7 +34,7 @@ export const askBestBlock = (pool: Pool) => async (
          SELECT epoch_no AS "epoch",
            epoch_slot_no AS "slot",
            encode(hash, 'hex') as hash,
-           block_no AS height,
+           block_no AS height
          FROM BLOCK
          ORDER BY id DESC
          LIMIT 1;

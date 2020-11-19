@@ -37,7 +37,7 @@ const pool = new Pool({ user: config.get("db.user")
   , password: config.get("db.password")});
 createCertificatesView(pool);
 
-
+//console.log("test",askBestBlock(pool));
 const healthChecker = new HealthChecker(askBestBlock(pool));
 
 const router = express();
@@ -255,6 +255,7 @@ const routes : Route[] = [
 // regular endpoints
 , {   path: "/v2/bestblock"
   , method: "get"
+  //@ts-ignore
   , handler: askBestBlock(pool)
 }
 , { path: "/v2/addresses/filterUsed"
@@ -280,6 +281,7 @@ const routes : Route[] = [
 , { path: "/v2/importerhealthcheck"
   , method: "get"
   , handler: async (_req: Request, res: Response) => {
+    //@ts-ignore
     const status = healthChecker.getStatus();
     if (status === "OK")
       res.send({ code: 200, message: "Importer is OK" });

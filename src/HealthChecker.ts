@@ -10,17 +10,17 @@ export type HealthCheckerStatus = "OK" | "DOWN" | "SLOW" | "BLOCK_IS_STALE";
 export class HealthChecker {
   // given a function that returns a /bestBlock, this class
   // will spawn a thread that checks to see that /bestBlock
-  // is changing over time.  
+  // is changing over time.
   // If it is not, then we have an error!
 
-  healthCheckerFunc : () => Promise<UtilEither<BestBlock.CardanoFrag>>;
+  healthCheckerFunc: () => Promise<UtilEither<BestBlock.CardanoFrag>>;
 
-  lastBlock : UtilEither<BestBlock.CardanoFrag>;
-  lastTime : number;
-  lastGoodBlockChange : number;
-  timeAndBlock : [number, UtilEither<BestBlock.CardanoFrag>];
+  lastBlock: UtilEither<BestBlock.CardanoFrag>;
+  lastTime: number;
+  lastGoodBlockChange: number;
+  timeAndBlock: [number, UtilEither<BestBlock.CardanoFrag>];
 
-  constructor( bestBlockFunc : () => Promise<UtilEither<BestBlock.CardanoFrag>> ) {
+  constructor(bestBlockFunc: () => Promise<UtilEither<BestBlock.CardanoFrag>>) {
     this.healthCheckerFunc = bestBlockFunc;
     const currentTime = Date.now();
 
@@ -29,12 +29,14 @@ export class HealthChecker {
     this.lastGoodBlockChange = currentTime;
     this.timeAndBlock = [currentTime, { kind: "error", errMsg: "init" }];
 
-    setInterval( this.checkHealth, REQUEST_RATE_MS);
-    
+    setInterval(this.checkHealth, REQUEST_RATE_MS);
   }
 
-  checkHealth = async ():Promise<void> =>  {
-    let block : UtilEither<BestBlock.CardanoFrag> = { kind: "error", errMsg: "function failed" };
+  checkHealth = async (): Promise<void> => {
+    let block: UtilEither<BestBlock.CardanoFrag> = {
+      kind: "error",
+      errMsg: "function failed",
+    };
     try {
       block = await this.healthCheckerFunc();
     } catch {
@@ -44,33 +46,26 @@ export class HealthChecker {
 
     const [currentSavedTime, currentBlock] = this.timeAndBlock;
 
-    if(currentBlock.kind !== this.lastBlock.kind)
+    if (currentBlock.kind !== this.lastBlock.kind)
       this.lastBlock = currentBlock;
-    if(currentBlock.kind === "ok" && this.lastBlock.kind === "ok")
-      if(currentBlock.value.currentEpoch.blocks[0].number !== this.lastBlock.value.currentEpoch.blocks[0].number){
+    if (currentBlock.kind === "ok" && this.lastBlock.kind === "ok")
+      if (currentBlock.value.epoch !== this.lastBlock.value.epoch) {
         this.lastBlock = currentBlock;
         this.lastGoodBlockChange = currentTime;
       }
-       
 
     this.lastTime = currentSavedTime;
     this.timeAndBlock = [currentTime, block];
-  }
+  };
 
-  getStatus = ():HealthCheckerStatus => {
+  getStatus = (): HealthCheckerStatus => {
     const [currentSavedTime, currentBlock] = this.timeAndBlock;
-    if (currentBlock.kind !== "ok")
-      return "DOWN";
-    if (currentSavedTime - this.lastTime > REQUEST_TIMEOUT_MS)
-      return "SLOW";
+    if (currentBlock.kind !== "ok") return "DOWN";
+    if (currentSavedTime - this.lastTime > REQUEST_TIMEOUT_MS) return "SLOW";
     if (currentSavedTime - this.lastGoodBlockChange > REQUEST_STALE_BLOCK)
-      if(this.lastBlock.kind === "ok")
-        if(this.lastBlock.value.currentEpoch.blocks[0].number === currentBlock.value.currentEpoch.blocks[0].number)
+      if (this.lastBlock.kind === "ok")
+        if (this.lastBlock.value.epoch === currentBlock.value.epoch)
           return "BLOCK_IS_STALE";
     return "OK";
-
-  }
-
+  };
 }
-
-
