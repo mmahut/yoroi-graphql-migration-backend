@@ -372,7 +372,7 @@ const askBlockNumByHashQuery = `
   SELECT "block"."block_no" AS "blockNumber"
   FROM "block"
   WHERE "block"."hash"=decode($1, 'hex')
-`
+`;
 
 export const askBlockNumByHash = async (pool: Pool, hash : string) : Promise<UtilEither<number>> => {
     if(!hash)
