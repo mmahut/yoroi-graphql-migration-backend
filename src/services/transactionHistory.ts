@@ -271,7 +271,7 @@ export const askTransactionHistory = async (
       [
         ...addressTypes.legacyAddr,
         ...addressTypes.bech32,
-      ];
+      ]
     , untilNum
     , after.blockNumber
     , after.txIndex
