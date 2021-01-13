@@ -19,7 +19,7 @@ export const askUtxoSumForAddresses = async (pool: Pool, addresses: string[]): P
         const value = res.rows.length > 0 ? res.rows[0].value : "0";
         return {
             kind:"ok",
-            value;
+            value,
         }
     } catch (err) {
         const errString = err.stack + "";
