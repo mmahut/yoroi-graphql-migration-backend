@@ -12,7 +12,7 @@ export const handleSignedTx = async (req: Request, res: Response):Promise<void>=
   try {
     const endpointResponse = await axios({ method:"post"
       , url: submissionEndpoint
-      , data: req.body.signedTx);
+      , data: req.body.signedTx});
     if(endpointResponse.status === 202){
       if(endpointResponse.data.Left){
         const msg = `Transaction was rejected: ${endpointResponse.data.Left}`;
